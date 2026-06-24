@@ -30,8 +30,6 @@ export default async function LoginPage({
             <LoginForm initialError={params?.error ?? null} nextPath={params?.next ?? '/chat'} />
           </div>
         </section>
-
-        <Link className="back-link" href="/">Back to overview</Link>
       </main>
     </div>
   )

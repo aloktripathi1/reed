@@ -77,33 +77,6 @@ export function LoginForm({
 
   return (
     <form className="auth-form" onSubmit={handleSubmit}>
-      <div className="auth-mode-toggle" aria-label="Choose authentication mode">
-        <button
-          className={mode === 'sign-in' ? 'active' : undefined}
-          onClick={() => {
-            setMode('sign-in')
-            setEmail((currentEmail) => currentEmail || 'maya@demo.reed')
-            setError(null)
-            setNotice(null)
-          }}
-          type="button"
-        >
-          Sign in
-        </button>
-        <button
-          className={mode === 'sign-up' ? 'active' : undefined}
-          onClick={() => {
-            setMode('sign-up')
-            setEmail('')
-            setError(null)
-            setNotice(null)
-          }}
-          type="button"
-        >
-          Sign up
-        </button>
-      </div>
-
       <button
         className="oauth-button"
         disabled={isGoogleSubmitting || isSubmitting}
@@ -165,9 +138,41 @@ export function LoginForm({
         {isSubmitting ? (mode === 'sign-in' ? 'Signing in...' : 'Creating account...') : mode === 'sign-in' ? 'Continue' : 'Create account'}
       </button>
 
-      <p className="auth-demo">
-        Want to try it first? Use maya@demo.reed · reed-demo-2024
-      </p>
+      <div className="auth-switch-prompt">
+        {mode === 'sign-in' ? (
+          <>
+            <span>New to Reed?</span>
+            <button
+              onClick={() => {
+                setMode('sign-up')
+                setEmail('')
+                setPassword('')
+                setError(null)
+                setNotice(null)
+              }}
+              type="button"
+            >
+              Create an account
+            </button>
+          </>
+        ) : (
+          <>
+            <span>Already have an account?</span>
+            <button
+              onClick={() => {
+                setMode('sign-in')
+                setEmail((currentEmail) => currentEmail || 'maya@demo.reed')
+                setPassword('')
+                setError(null)
+                setNotice(null)
+              }}
+              type="button"
+            >
+              Sign in
+            </button>
+          </>
+        )}
+      </div>
     </form>
   )
 }
