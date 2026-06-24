@@ -232,10 +232,6 @@ export function SessionMemoryPeek({
           <span>Reed</span>
           <p>Memory</p>
         </div>
-        <div className="memory-live">
-          <span />
-          Active
-        </div>
       </div>
 
       {/* Content */}

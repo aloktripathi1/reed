@@ -4,12 +4,14 @@ import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport, type UIMessage } from 'ai'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, useSyncExternalStore, useTransition } from 'react'
+import { createPortal } from 'react-dom'
 import type { SessionContext } from '@/lib/coaching-logic/session-context'
 import { createClient } from '@/lib/supabase/client'
 import { SessionMemoryPeek } from '@/components/session-memory-peek'
 
 type ThemeMode = 'light' | 'dark'
 type PendingAttachment = { filename: string; text: string }
+type AccountMenuPosition = { left: number; top: number }
 
 const THEME_CHANGE_EVENT = 'reed-theme-change'
 const MAX_ATTACHMENTS = 3
@@ -195,12 +197,14 @@ export function ReedApp({
   const [messageAttachments, setMessageAttachments] = useState<Record<number, string[]>>({})
   const [sessionContext, setSessionContext] = useState(initialSessionContext)
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
+  const [accountMenuPosition, setAccountMenuPosition] = useState<AccountMenuPosition | null>(null)
   const theme = useSyncExternalStore(subscribeToThemeChange, getThemeSnapshot, getServerThemeSnapshot)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const formRef = useRef<HTMLFormElement | null>(null)
-  const accountMenuRef = useRef<HTMLDivElement | null>(null)
+  const accountButtonRef = useRef<HTMLButtonElement | null>(null)
+  const accountPopoverRef = useRef<HTMLDivElement | null>(null)
   const sendingAttachmentsRef = useRef<PendingAttachment[]>([])
   const hasHydratedRef = useRef(false)
   const [isRefreshingContext, startRefreshTransition] = useTransition()
@@ -208,12 +212,38 @@ export function ReedApp({
   async function handleSignOut() {
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push('/')
+    router.push('/login')
     router.refresh()
   }
 
   function toggleTheme() {
     saveTheme(theme === 'dark' ? 'light' : 'dark')
+  }
+
+  function updateAccountMenuPosition() {
+    const buttonRect = accountButtonRef.current?.getBoundingClientRect()
+    if (!buttonRect) return
+
+    const popoverWidth = 258
+    const viewportPadding = 12
+
+    setAccountMenuPosition({
+      left: Math.min(
+        window.innerWidth - popoverWidth - viewportPadding,
+        Math.max(viewportPadding, buttonRect.right - popoverWidth)
+      ),
+      top: buttonRect.bottom + 10,
+    })
+  }
+
+  function toggleAccountMenu() {
+    if (!isAccountMenuOpen) {
+      updateAccountMenuPosition()
+      setIsAccountMenuOpen(true)
+      return
+    }
+
+    setIsAccountMenuOpen(false)
   }
 
   const { messages, sendMessage, status, error } = useChat({
@@ -259,7 +289,12 @@ export function ReedApp({
 
   useEffect(() => {
     function handleDocumentPointerDown(event: PointerEvent) {
-      if (!accountMenuRef.current?.contains(event.target as Node)) {
+      const target = event.target as Node
+
+      if (
+        !accountButtonRef.current?.contains(target) &&
+        !accountPopoverRef.current?.contains(target)
+      ) {
         setIsAccountMenuOpen(false)
       }
     }
@@ -277,6 +312,19 @@ export function ReedApp({
       document.removeEventListener('keydown', handleEscape)
     }
   }, [])
+
+  useEffect(() => {
+    if (!isAccountMenuOpen) return
+
+    updateAccountMenuPosition()
+    window.addEventListener('resize', updateAccountMenuPosition)
+    window.addEventListener('scroll', updateAccountMenuPosition, true)
+
+    return () => {
+      window.removeEventListener('resize', updateAccountMenuPosition)
+      window.removeEventListener('scroll', updateAccountMenuPosition, true)
+    }
+  }, [isAccountMenuOpen])
 
   useEffect(() => {
     if (!hasHydratedRef.current) {
@@ -429,36 +477,43 @@ export function ReedApp({
                 </svg>
               )}
             </button>
-            <div className="account-menu" ref={accountMenuRef}>
+            <div className="account-menu">
               <button
                 aria-expanded={isAccountMenuOpen}
                 aria-label="Open account menu"
                 className="account-button"
-                onClick={() => setIsAccountMenuOpen((isOpen) => !isOpen)}
+                onClick={toggleAccountMenu}
+                ref={accountButtonRef}
                 type="button"
               >
                 <span>{getInitial(userEmail)}</span>
               </button>
-              {isAccountMenuOpen && (
-                <div className="account-popover" role="menu">
-                  <div className="account-popover-header">
-                    <span className="account-avatar">{getInitial(userEmail)}</span>
-                    <div>
-                      <strong>Signed in</strong>
-                      <p>{userEmail}</p>
-                    </div>
-                  </div>
-                  <button onClick={handleSignOut} role="menuitem" type="button">
-                    <svg aria-hidden="true" fill="none" height="16" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24" width="16">
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                      <path d="m16 17 5-5-5-5" />
-                      <path d="M21 12H9" />
-                    </svg>
-                    Sign out
-                  </button>
-                </div>
-              )}
             </div>
+            {isAccountMenuOpen && accountMenuPosition && createPortal(
+              <div
+                className="account-popover"
+                ref={accountPopoverRef}
+                role="menu"
+                style={{ left: accountMenuPosition.left, top: accountMenuPosition.top }}
+              >
+                <div className="account-popover-header">
+                  <span className="account-avatar">{getInitial(userEmail)}</span>
+                  <div>
+                    <strong>Signed in</strong>
+                    <p>{userEmail}</p>
+                  </div>
+                </div>
+                <button onClick={handleSignOut} role="menuitem" type="button">
+                  <svg aria-hidden="true" fill="none" height="16" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24" width="16">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <path d="m16 17 5-5-5-5" />
+                    <path d="M21 12H9" />
+                  </svg>
+                  Sign out
+                </button>
+              </div>,
+              document.body
+            )}
           </div>
         </header>
 

@@ -858,7 +858,7 @@ textarea {
   border-bottom: 1px solid var(--border);
   display: flex;
   flex-shrink: 0;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 20px 22px 18px;
 }
 
@@ -875,27 +875,6 @@ textarea {
   color: var(--text-muted);
   font-size: 12px;
   margin: 6px 0 0;
-}
-
-.memory-live {
-  align-items: center;
-  background: var(--accent-bg);
-  border: 1px solid #c8ded3;
-  border-radius: 999px;
-  color: var(--accent-dark);
-  display: inline-flex;
-  font-size: 11px;
-  font-weight: 800;
-  gap: 6px;
-  padding: 6px 9px;
-}
-
-.memory-live span {
-  background: #62b27f;
-  border-radius: 50%;
-  display: block;
-  height: 7px;
-  width: 7px;
 }
 
 .memory-sidebar-content {
@@ -1029,9 +1008,7 @@ textarea {
   box-shadow: var(--shadow-card);
   min-width: 258px;
   padding: 10px;
-  position: absolute;
-  right: 0;
-  top: calc(100% + 10px);
+  position: fixed;
   z-index: 30;
 }
 
@@ -1281,7 +1258,7 @@ textarea {
   background: color-mix(in srgb, var(--surface) 92%, transparent);
   border-top: 1px solid var(--border);
   flex-shrink: 0;
-  padding: 14px clamp(18px, 4vw, 56px) 18px;
+  padding: 10px clamp(18px, 4vw, 56px) 12px;
   backdrop-filter: blur(16px);
 }
 
@@ -1297,7 +1274,7 @@ textarea {
   display: flex;
   font-size: 12px;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .composer-label span:first-child {
@@ -1316,11 +1293,11 @@ textarea {
   align-items: flex-end;
   background: var(--surface);
   border: 1px solid var(--border-strong);
-  border-radius: 18px;
-  box-shadow: 0 18px 42px rgba(23,33,27,0.10);
+  border-radius: 15px;
+  box-shadow: 0 12px 30px rgba(23,33,27,0.09);
   display: flex;
-  gap: 10px;
-  padding: 11px;
+  gap: 9px;
+  padding: 8px;
 }
 
 .composer-box:focus-within {
@@ -1340,9 +1317,9 @@ textarea {
   font-size: 15px;
   line-height: 1.6;
   max-height: 132px;
-  min-height: 40px;
+  min-height: 34px;
   outline: none;
-  padding: 8px 0;
+  padding: 5px 0;
 }
 
 .icon-button,
@@ -1358,9 +1335,9 @@ textarea {
 
 .icon-button,
 .send-button {
-  border-radius: 12px;
-  height: 40px;
-  width: 40px;
+  border-radius: 11px;
+  height: 36px;
+  width: 36px;
 }
 
 .icon-button {
@@ -1392,8 +1369,8 @@ textarea {
   display: flex;
   font-size: 12px;
   justify-content: space-between;
-  min-height: 20px;
-  padding: 7px 2px 0;
+  min-height: 16px;
+  padding: 5px 2px 0;
 }
 
 .attachment-chip {
@@ -1430,10 +1407,6 @@ textarea {
   background:
     linear-gradient(180deg, rgba(24,34,29,0.98), rgba(17,23,19,0.98)),
     var(--surface);
-}
-
-:root[data-theme="dark"] .memory-live {
-  border-color: #315243;
 }
 
 :root[data-theme="dark"] .chat-shell {
