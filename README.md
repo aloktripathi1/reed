@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./docs/reed-banner.png" alt="Reed banner" width="100%" />
+</p>
+
 # Reed
 
 Reed is a memory-first AI mentor for career decisions, applications, and follow-through. The demo is designed around one core behavior: Reed opens a conversation with useful context before the user types, based on prior goals, patterns, and commitments.
