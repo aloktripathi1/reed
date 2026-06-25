@@ -8,6 +8,8 @@ Reed is a memory-first AI mentor for career decisions, applications, and follow-
 
 Live app: https://ask-reed.vercel.app
 
+Roadmap: [ROADMAP.md](./ROADMAP.md)
+
 ## What It Demonstrates
 
 - Proactive session opening based on stored commitments and behavioral signals.
